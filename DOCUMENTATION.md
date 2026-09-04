@@ -9,7 +9,7 @@ application designed to help learners improve vocabulary, grammar,
 translation, pronunciation, daily phrases, synonyms, antonyms, and
 conversational English.
 
-The current project version is **LLP V1**. This version includes a
+The current project version is **LLP**. This version includes a
 **Cultural Bridge Agent** that helps identify language patterns
 influenced by Indian-language literal translations and suggests more
 natural English alternatives.

@@ -1,0 +1,1 @@
+# Obsolete - moved to app/prompts/vocabulary_prompt.py

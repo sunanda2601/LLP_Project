@@ -1,0 +1,1 @@
+# Obsolete - moved to app/prompts/word_of_day_prompt.py

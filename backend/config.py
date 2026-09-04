@@ -1,0 +1,1 @@
+# Obsolete - moved to app/config/config.py

@@ -1,0 +1,1 @@
+# Obsolete - moved to app/prompts/synonyms_prompt.py

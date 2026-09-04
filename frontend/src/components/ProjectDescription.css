@@ -1,0 +1,298 @@
+.description-section {
+  padding: 1.5rem 0;
+  width: 100%;
+}
+
+.description-card {
+  background: var(--bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg); /* 20px */
+  padding: 3rem 2.5rem;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  transition: box-shadow var(--transition-normal), border-color var(--transition-normal);
+}
+
+.description-card:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-border-hover);
+}
+
+.description-card h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+.description-text {
+  font-size: 1.15rem;
+  color: var(--text-body);
+  line-height: 1.7;
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+/* ========================================================================== */
+/* SECTION CAPABILITIES SUBTITLE & WRAPPERS                                  */
+/* ========================================================================== */
+
+.section-subtitle {
+  font-size: 1.35rem;
+  font-weight: 750;
+  color: var(--text-main);
+  text-align: center;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.015em;
+}
+
+.capabilities-wrapper {
+  margin-top: 2.5rem;
+  width: 100%;
+}
+
+.capabilities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+  width: 100%;
+}
+
+.capability-card {
+  background: var(--bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  transition: all var(--transition-normal);
+}
+
+.capability-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-border-hover);
+}
+
+.capability-icon-circle {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.capability-card h4 {
+  font-size: 1.02rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.capability-card p {
+  font-size: 0.85rem;
+  color: var(--text-body);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* ========================================================================== */
+/* WORKFLOW TIMELINE LOOP                                                     */
+/* ========================================================================== */
+
+.workflow-wrapper {
+  margin-top: 3.5rem;
+  width: 100%;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem 2rem;
+  border: 1px solid var(--color-border);
+}
+
+.workflow-timeline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+}
+
+.workflow-node-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.workflow-node {
+  background: var(--bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 145px;
+  text-align: center;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.workflow-node:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.step-num {
+  font-size: 0.72rem;
+  font-weight: 800;
+  background: var(--color-primary);
+  color: #ffffff;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.35rem;
+}
+
+.step-name {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.15rem;
+}
+
+.step-desc {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  line-height: 1.25;
+}
+
+.workflow-arrow {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* ========================================================================== */
+/* COMPARISON TABLE                                                           */
+/* ========================================================================== */
+
+.comparison-wrapper {
+  margin-top: 3.5rem;
+  width: 100%;
+}
+
+.comparison-card {
+  background: var(--bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.comparison-table-container {
+  overflow-x: auto;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+  text-align: left;
+}
+
+.comparison-table th, .comparison-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.comparison-table th {
+  background: var(--bg-secondary);
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.highlight-header {
+  background: var(--color-accent) !important;
+  color: var(--color-primary) !important;
+  text-align: center;
+}
+
+.align-center {
+  text-align: center;
+}
+
+.green-text {
+  color: var(--color-success);
+}
+
+.red-text {
+  color: var(--text-muted);
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.comparison-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.comparison-table tbody tr:hover {
+  background: rgba(0, 113, 227, 0.02);
+}
+
+/* ========================================================================== */
+/* RESPONSIVENESS AND TABLET COLLAPSING                                       */
+/* ========================================================================== */
+
+@media (max-width: 900px) {
+  .workflow-timeline {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+  }
+  
+  .workflow-node-container {
+    flex-direction: column;
+    gap: 1.25rem;
+    width: 100%;
+  }
+  
+  .workflow-arrow {
+    transform: rotate(90deg);
+  }
+}
+
+@media (max-width: 640px) {
+  .description-card {
+    padding: 2rem 1.5rem;
+    border-radius: 20px;
+  }
+  
+  .description-text {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  
+  .workflow-wrapper {
+    padding: 1.5rem 1rem;
+  }
+  
+  .comparison-table th, .comparison-table td {
+    padding: 0.85rem 1rem;
+    font-size: 0.85rem;
+  }
+}

@@ -1,0 +1,1 @@
+# Obsolete - moved to app/services/logger.py

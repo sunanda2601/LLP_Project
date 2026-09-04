@@ -1,0 +1,36 @@
+[
+    {
+        "input":
+            "Meaning of perseverance",
+        "expected_intent":
+            "VOCABULARY"
+    },
+
+    {
+        "input":
+            "Translate hello to Telugu",
+        "expected_intent":
+            "TRANSLATION"
+    },
+
+    {
+        "input":
+            "Pronounce entrepreneur",
+        "expected_intent":
+            "PRONUNCIATION"
+    },
+
+    {
+        "input":
+            "Create a learning plan",
+        "expected_intent":
+            "LEARNING_PLAN"
+    },
+
+    {
+        "input":
+            "What is my goal?",
+        "expected_intent":
+            "MEMORY_QUERY"
+    }
+]

@@ -1,0 +1,1 @@
+# Obsolete - moved to app/prompts/conversation_prompt.py

@@ -1,0 +1,1 @@
+# Obsolete - moved to app/models/llm_response.py

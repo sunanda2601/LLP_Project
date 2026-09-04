@@ -1,0 +1,47 @@
+# ==============================
+# Backend
+# ==============================
+
+backend/venv/
+backend/__pycache__/
+backend/.env
+backend/app/storage/*.db
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# ==============================
+# Frontend
+# ==============================
+
+frontend/node_modules/
+frontend/dist/
+
+# ==============================
+# IDE
+# ==============================
+
+.vscode/
+.idea/
+
+# ==============================
+# OS Files
+# ==============================
+
+.DS_Store
+Thumbs.db
+
+# ==============================
+# Logs / Temporary Files
+# ==============================
+
+*.log
+test_results.txt

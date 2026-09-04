@@ -1,0 +1,38 @@
+/* Core container structure for Apple Refined Light Theme */
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-color);
+}
+
+.content-wrapper {
+  width: 100%;
+  max-width: 1120px; /* Roomier, premium content width */
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 7rem; /* Generous clean HIG spacing */
+}
+
+/* Base sections spacing adjustments */
+section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .content-wrapper {
+    gap: 5rem;
+    padding: 0 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .content-wrapper {
+    gap: 3.5rem;
+    padding: 0 1rem;
+  }
+}

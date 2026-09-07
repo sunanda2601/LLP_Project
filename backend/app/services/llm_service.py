@@ -14,13 +14,11 @@ from app.models.llm_response import LLMResponse
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 
-MODEL_NAME = "mistral:7b"
+MODEL_NAME = "ministral-3:8b"
 
-TEMPERATURE = 0.3
-MAX_TOKENS = 4000
-TIMEOUT = 120
-
-
+TEMPERATURE = 0.2
+MAX_TOKENS = 200
+TIMEOUT = 180
 # =========================================================
 # RESPONSE CLEANING
 # =========================================================
@@ -109,8 +107,7 @@ class LLMService:
 
     PROVIDER = "OLLAMA"
 
-    MAX_RETRIES = 3
-
+    MAX_RETRIES = 1
     RETRY_DELAY = 2
 
     # -----------------------------------------------------

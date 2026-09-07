@@ -91,16 +91,62 @@ Response Rules:
     INTENT_PROMPTS = {
 
         "GRAMMAR": """
-Focus on grammar correction.
+Focus on accurate English grammar correction.
 
-Requirements:
-- Correct mistakes
-- Explain corrections
-- Show improved version
-- Give examples
+IMPORTANT RULE:
+Do NOT invent grammatical mistakes.
+
+If the user's sentence is already grammatically correct:
+- Say clearly that the sentence is grammatically correct.
+- Do NOT change the sentence in the "Corrected" section.
+- Do NOT claim that "my work", "completed", or another alternative is grammatically required.
+- You may provide an optional Natural Version ONLY if it adds a genuinely different meaning or style, and clearly label it as optional.
+- Do not present a stylistic preference as a grammar correction.
+
+If the sentence contains an actual grammar mistake:
+- Identify the exact mistake.
+- Correct only the necessary part.
+- Explain the grammar rule.
+- Provide a concise example.
+
+OUTPUT FORMAT:
+
+Original:
+<user sentence>
+
+Corrected:
+<same sentence if already correct, otherwise corrected sentence>
+
+Explanation:
+• Explain whether the sentence is grammatically correct.
+• If incorrect, explain each actual grammatical correction.
+
+Grammar Rule:
+<relevant grammar rule>
+
+Natural Version:
+<optional; only if genuinely useful>
+
+Grammar Tip:
+<short learning tip>
+
+IMPORTANT:
+"Finished the work" is grammatically valid English when "the work" refers to a specific task, assignment, project, or work already known from context.
+
+For example:
+"I finished the work yesterday."
+is grammatically correct.
+
+Do NOT change it to:
+"I finished my work yesterday."
+or
+"I completed the work yesterday."
+and claim that these are grammatical corrections.
+
+Those are alternative phrasings, not corrections.
 """,
 
-        "VOCABULARY": """
+"VOCABULARY": """
 Focus on vocabulary development.
 
 You MUST format your response using EXACTLY the following structure (no markdown headers like ##, just plain text with capitalized labels and capitalized list items):

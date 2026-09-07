@@ -1,4 +1,4 @@
-﻿"""
+"""
 ===========================================================
 LANGUAGE LEARNING PAL AGENT CONTROLLER
 Version: 2.0
@@ -278,58 +278,78 @@ class AgentController:
             # ==========================================
             # CULTURAL BRIDGE ANALYSIS
             # ==========================================
-            cultural_result = CulturalBridgeAgent.process(message)
+            # Run Cultural Bridge only for messages that
+            # are suitable for language/cultural analysis.
+            # This prevents expensive Ministral inference
+            # from running on every LLP request.
 
-            issue = str(cultural_result.get("issue", "")).strip().lower()
+            cultural_result = None
 
-            no_issue = (
-                not issue
-                or "no genuine issue detected" in issue
-                or "no genuine cultural" in issue
-                or "no cultural" in issue
-                or "no literal-language influence" in issue
-            )
+            cultural_bridge_intents = {
+                "CULTURAL_BRIDGE",
+    "GRAMMAR",
+    "DAILY_PHRASES",
+    "CONVERSATION",
+    "TRANSLATION",
+    "VOCABULARY",   
+           }
 
-            if not no_issue:
+            if context.intent in cultural_bridge_intents:
 
-                context.update_state(
-                    AgentState.COMPLETED
+                cultural_result = CulturalBridgeAgent.process(message)
+
+                issue = str(
+                    cultural_result.get("issue", "")
+                ).strip().lower()
+
+                no_issue = (
+                    not issue
+                    or "no genuine issue detected" in issue
+                    or "no genuine cultural" in issue
+                    or "no cultural" in issue
+                    or "no literal-language influence" in issue
                 )
 
-                context.intent = "CULTURAL_BRIDGE"
-                context.confidence = 1.0
+                if not no_issue:
 
-                context.response = (
-                    f"Original:\n"
-                    f"{cultural_result.get('original', message)}\n\n"
-                    f"Improved:\n"
-                    f"{cultural_result.get('improved', message)}\n\n"
-                    f"Explanation:\n"
-                    f"{cultural_result.get('reason', '')}"
-                )
+                    context.update_state(
+                        AgentState.COMPLETED
+                    )
 
-                MemoryManager.add_session_memory(
-                    user_id=user_id,
-                    message=message,
-                    response=context.response
-                )
+                    context.intent = "CULTURAL_BRIDGE"
+                    context.confidence = 1.0
 
-                return AgentResponse(
-                    success=True,
-                    response=context.response,
-                    intent=context.intent,
-                    confidence=context.confidence,
-                    state=context.state.value,
-                    metadata={
-                        "session_id": context.session_id,
-                        "agent": "CulturalBridgeAgent",
-                        "model": CulturalBridgeAgent.MODEL_NAME,
-                        "cultural_bridge": cultural_result,
-                        "execution_time": (
-                            datetime.utcnow() - start_time
-                        ).total_seconds()
-                    }
-                )
+                    context.response = (
+                        f"Original:\n"
+                        f"{cultural_result.get('original', message)}\n\n"
+                        f"Improved:\n"
+                        f"{cultural_result.get('improved', message)}\n\n"
+                        f"Explanation:\n"
+                        f"{cultural_result.get('reason', '')}"
+                    )
+
+                    MemoryManager.add_session_memory(
+                        user_id=user_id,
+                        message=message,
+                        response=context.response
+                    )
+
+                    return AgentResponse(
+                        success=True,
+                        response=context.response,
+                        intent=context.intent,
+                        confidence=context.confidence,
+                        state=context.state.value,
+                        metadata={
+                            "session_id": context.session_id,
+                            "agent": "CulturalBridgeAgent",
+                            "model": CulturalBridgeAgent.MODEL_NAME,
+                            "cultural_bridge": cultural_result,
+                            "execution_time": (
+                                datetime.utcnow() - start_time
+                            ).total_seconds()
+                        }
+                    )           
             # ==========================================
             # STATE CHECK / INTERCEPTION
             # ==========================================
@@ -1249,7 +1269,8 @@ class AgentController:
                         context.response = generate_response(
                             prompt
                         )
-                    except Exception:
+                    except Exception as e:
+                        print(f"LEARNING_PLAN LLM ERROR: {type(e).__name__}: {e}")
                         return AgentResponse(
                             success=False,
                             response="An error occurred while processing your request.",
@@ -1258,6 +1279,7 @@ class AgentController:
                             state=context.state.value,
                             metadata={
                                 "session_id": context.session_id,
+                                "error": str(e),
                                 "execution_time": (datetime.utcnow() - start_time).total_seconds()
                             }
                         )
@@ -1369,7 +1391,8 @@ class AgentController:
 
                 try:
                     context.response = generate_response(prompt)
-                except Exception:
+                except Exception as e:
+                    print(f"RESPONSE_GENERATION ERROR: {type(e).__name__}: {e}")
                     return AgentResponse(
                         success=False,
                         response="An error occurred while processing your request.",
@@ -1378,6 +1401,7 @@ class AgentController:
                         state=context.state.value,
                         metadata={
                             "session_id": context.session_id,
+                            "error": str(e),
                             "execution_time": (datetime.utcnow() - start_time).total_seconds()
                         }
                     )

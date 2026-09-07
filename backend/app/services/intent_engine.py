@@ -35,7 +35,10 @@ class IntentEngine:
 
         "VOCABULARY": [
             "meaning",
+            "mean",
             "word meaning",
+            "what does",
+            "what is the meaning",
             "vocabulary",
             "new word",
             "define",
@@ -97,11 +100,11 @@ class IntentEngine:
         ],
 
         "WORD_OF_DAY": [
-    "word of the day",
-    "today's word",
-    "word today",
-    "daily word"
-],
+            "word of the day",
+            "today's word",
+            "word today",
+            "daily word"
+        ],
 
 "CULTURAL": [
     "cultural",
@@ -114,7 +117,25 @@ class IntentEngine:
     "is this culturally appropriate",
     "cultural usage",
     "social context"
-]
+],
+
+"DAILY_PHRASES": [
+    "could you please",
+    "please send me",
+    "please let me know",
+    "let me know",
+    "get back to you",
+    "how are you",
+    "how was your day",
+    "what are you doing",
+    "good morning",
+    "good afternoon",
+    "good evening",
+    "thank you",
+    "thanks",
+    "see you",
+    "nice to meet you"
+],
     }
 
     GOAL_PATTERNS = [
@@ -151,6 +172,30 @@ class IntentEngine:
     def classify_intent(cls, message: str):
 
         text = re.sub(r'[\\/?.!\'"’`\s]+$', '', message.lower().strip())
+                # CULTURAL BRIDGE priority check
+        # Detect common Indian-English / literal-translation patterns
+        # before generic intent classification.
+
+        cultural_bridge_patterns = [
+            "yesterday itself",
+            "today itself",
+            "tomorrow itself",
+            "day before yesterday itself",
+            "do the needful",
+            "revert back to me",
+            "revert back",
+            "same itself",
+            "itself i completed",
+            "itself i finished",
+            "itself we completed",
+            "itself we finished",
+        ]
+
+        if any(pattern in text for pattern in cultural_bridge_patterns):
+            return IntentResult(
+                intent="CULTURAL_BRIDGE",
+                confidence=1.0
+            )
 
         # RESET_PROGRESS check
         reset_progress_patterns = [
@@ -341,6 +386,84 @@ class IntentEngine:
         if any(pat in text for pat in profile_update_patterns):
             return IntentResult(
                 intent="PROFILE_UPDATE",
+                confidence=1.0
+            )
+        # =====================================================
+        # TRANSLATION PRIORITY CHECK
+        # =====================================================
+
+        translation_priority_patterns = [
+            "translate:",
+            "translate into",
+            "translate to",
+            "translate this",
+            "translation:",
+            "in telugu",
+            "in hindi",
+            "in english",
+        ]
+
+        if any(pattern in text for pattern in translation_priority_patterns):
+            return IntentResult(
+                intent="TRANSLATION",
+                confidence=1.0
+            )
+
+        # =====================================================
+        # VOCABULARY PRIORITY CHECK
+        # =====================================================
+
+        vocabulary_priority_patterns = [
+            "what does",
+            "what is the meaning",
+            "word meaning",
+            "define",
+            "definition",
+        ]
+
+        if any(pattern in text for pattern in vocabulary_priority_patterns):
+            return IntentResult(
+                intent="VOCABULARY",
+                confidence=1.0
+            )
+
+        # Cultural / literal-language patterns
+        # These phrases may indicate Indian-English /
+        # literal translation influence.
+
+        grammar_patterns = [
+            "yesterday itself",
+            "today itself",
+            "tomorrow itself",
+            "last week itself",
+            "last month itself",
+            "last year itself",
+            "two days ago itself",
+            "three days ago itself",
+            "only yesterday",
+            "only today",
+            "only tomorrow",
+        ]
+
+        if any(pattern in text for pattern in grammar_patterns):
+            return IntentResult(
+                intent="CULTURAL_BRIDGE",
+                confidence=1.0
+            )
+
+        # Normal grammar-related sentences
+        # These should remain GRAMMAR, not CULTURAL_BRIDGE.
+        normal_grammar_patterns = [
+            "i finished the work yesterday",
+            "i completed the work yesterday",
+            "i did the work yesterday",
+            "i finished my work yesterday",
+            "i completed my work yesterday",
+        ]
+
+        if any(pattern in text for pattern in normal_grammar_patterns):
+            return IntentResult(
+                intent="GRAMMAR",
                 confidence=1.0
             )
 

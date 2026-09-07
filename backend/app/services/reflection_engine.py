@@ -1,7 +1,7 @@
 """
 ===========================================================
 LANGUAGE LEARNING PAL REFLECTION ENGINE
-Version: 2.0
+Version: 2.2
 
 Purpose:
 - Self Evaluation
@@ -9,21 +9,6 @@ Purpose:
 - Quality Assessment
 - Confidence Scoring
 - Improvement Suggestions
-
-Architecture:
-
-Response
-    ↓
-Reflection Engine
-    ↓
-Quality Evaluation
-    ↓
-Confidence Validation
-    ↓
-Improvement Suggestions
-    ↓
-Final Approval
-
 ===========================================================
 """
 
@@ -41,45 +26,50 @@ class ReflectionEngine:
     MIN_RESPONSE_LENGTH = 30
 
     QUALITY_THRESHOLD = 0.75
-
     CONFIDENCE_THRESHOLD = 0.70
 
     EDUCATIONAL_KEYWORDS = [
-
         "example",
-
         "explanation",
-
         "tip",
-
         "practice",
-
         "improve",
-
         "learn",
-
         "exercise",
-
         "grammar",
-
         "vocabulary",
-
-        "pronunciation"
+        "pronunciation",
+        "rule",
+        "correct"
     ]
 
     STRUCTURE_INDICATORS = [
 
-        ":",
+        # Grammar
+        "Original:",
+        "Corrected:",
+        "Explanation:",
+        "Grammar Rule:",
+        "Natural Version:",
+        "Grammar Tip:",
 
-        "-",
+        # Vocabulary
+        "Word:",
+        "Meaning:",
+        "Part of Speech:",
+        "Example:",
+        "Synonyms:",
+        "Antonyms:",
+        "Actionable Tip:",
 
-        "•",
+        # Translation
+        "Translation:",
+        "English:",
+        "Telugu:",
 
-        "1.",
-
-        "2.",
-
-        "3."
+        # General
+        "Practice:",
+        "Tip:"
     ]
 
     # =====================================================
@@ -87,10 +77,10 @@ class ReflectionEngine:
     # =====================================================
 
     @classmethod
-    def evaluate_length(
-        cls,
-        response: str
-    ):
+    def evaluate_length(cls, response: str):
+
+        if not response:
+            return 0.0
 
         if len(response.strip()) >= cls.MIN_RESPONSE_LENGTH:
             return 1.0
@@ -102,26 +92,20 @@ class ReflectionEngine:
     # =====================================================
 
     @classmethod
-    def evaluate_educational_value(
-        cls,
-        response: str
-    ):
+    def evaluate_educational_value(cls, response: str):
+
+        if not response:
+            return 0.0
 
         text = response.lower()
 
         matches = sum(
-
             1
-
             for keyword in cls.EDUCATIONAL_KEYWORDS
-
-            if keyword in text
+            if keyword.lower() in text
         )
 
-        score = min(
-            matches / 4,
-            1.0
-        )
+        score = min(matches / 4, 1.0)
 
         return round(score, 2)
 
@@ -130,24 +114,18 @@ class ReflectionEngine:
     # =====================================================
 
     @classmethod
-    def evaluate_structure(
-        cls,
-        response: str
-    ):
+    def evaluate_structure(cls, response: str):
+
+        if not response:
+            return 0.0
 
         matches = sum(
-
             1
-
-            for item in cls.STRUCTURE_INDICATORS
-
-            if item in response
+            for indicator in cls.STRUCTURE_INDICATORS
+            if indicator.lower() in response.lower()
         )
 
-        score = min(
-            matches / 3,
-            1.0
-        )
+        score = min(matches / 4, 1.0)
 
         return round(score, 2)
 
@@ -162,25 +140,45 @@ class ReflectionEngine:
         intent: str
     ):
 
-        response = response.lower()
+        if not response:
+            return 0.0
+
+        response_lower = response.lower().strip()
+
+        # -------------------------------------------------
+        # TRANSLATION
+        # -------------------------------------------------
+        # Translation responses may contain only the target
+        # language. Therefore, English keywords such as
+        # "translation" should not be required.
+        # A non-empty translation is considered aligned.
+        # -------------------------------------------------
+
+        if intent == "TRANSLATION":
+
+            if response_lower:
+                return 1.0
+
+            return 0.0
+
+        # -------------------------------------------------
+        # OTHER INTENTS
+        # -------------------------------------------------
 
         intent_keywords = {
 
             "GRAMMAR": [
+                "correct",
                 "grammar",
                 "sentence",
-                "correction"
+                "explanation",
+                "grammar rule"
             ],
 
             "VOCABULARY": [
                 "meaning",
                 "definition",
                 "word"
-            ],
-
-            "TRANSLATION": [
-                "translation",
-                "translated"
             ],
 
             "PRONUNCIATION": [
@@ -200,21 +198,15 @@ class ReflectionEngine:
             ]
         }
 
-        keywords = intent_keywords.get(
-            intent,
-            []
-        )
+        keywords = intent_keywords.get(intent, [])
 
         if not keywords:
             return 0.5
 
         matches = sum(
-
             1
-
             for keyword in keywords
-
-            if keyword in response
+            if keyword in response_lower
         )
 
         score = min(
@@ -235,28 +227,40 @@ class ReflectionEngine:
         memory: dict = None
     ):
 
+        # No memory means personalization is not applicable.
+        # Do not penalize the response.
         if not memory:
-            return 0.5
+            return 1.0
 
-        score = 0
+        profile = memory.get(
+            "profile",
+            memory
+        )
 
-        goal = memory.get(
+        goal = profile.get(
             "goal",
             ""
         )
 
-        if goal and goal.lower() in response.lower():
-            score += 0.5
-
-        weak_areas = memory.get(
+        weak_areas = profile.get(
             "weak_areas",
             []
         )
+
+        score = 0.0
+
+        if goal and goal.lower() in response.lower():
+            score += 0.5
 
         for area in weak_areas:
 
             if area.lower() in response.lower():
                 score += 0.25
+
+        # If memory exists but contains no personalization
+        # requirements, do not penalize.
+        if not goal and not weak_areas:
+            return 1.0
 
         return min(
             score,
@@ -268,25 +272,22 @@ class ReflectionEngine:
     # =====================================================
 
     @classmethod
-    def evaluate_safety(
-        cls,
-        response: str
-    ):
+    def evaluate_safety(cls, response: str):
+
+        if not response:
+            return 0.0
 
         blocked_phrases = [
-
             "ignore previous instructions",
-
             "system prompt",
-
             "jailbreak"
         ]
 
-        response = response.lower()
+        response_lower = response.lower()
 
         for phrase in blocked_phrases:
 
-            if phrase in response:
+            if phrase in response_lower:
                 return 0.0
 
         return 1.0
@@ -328,6 +329,11 @@ class ReflectionEngine:
                 "Increase personalization."
             )
 
+        if scores["safety"] < 1:
+            feedback.append(
+                "Response failed safety validation."
+            )
+
         return feedback
 
     # =====================================================
@@ -342,20 +348,20 @@ class ReflectionEngine:
         memory: dict = None
     ):
 
+        # -------------------------------------------------
+        # Calculate normal scores
+        # -------------------------------------------------
+
         scores = {
 
             "length":
                 cls.evaluate_length(response),
 
             "education":
-                cls.evaluate_educational_value(
-                    response
-                ),
+                cls.evaluate_educational_value(response),
 
             "structure":
-                cls.evaluate_structure(
-                    response
-                ),
+                cls.evaluate_structure(response),
 
             "intent":
                 cls.evaluate_intent_alignment(
@@ -370,23 +376,89 @@ class ReflectionEngine:
                 ),
 
             "safety":
-                cls.evaluate_safety(
-                    response
-                )
+                cls.evaluate_safety(response)
         }
+
+        # -------------------------------------------------
+        # Translation-specific scoring
+        # -------------------------------------------------
+        # A translation can be a short target-language
+        # sentence and does not need educational labels.
+        # Therefore, do not penalize translation responses
+        # for length, education, or English structure.
+        # -------------------------------------------------
+
+        if intent == "TRANSLATION":
+
+            scores["length"] = 1.0
+            scores["education"] = 1.0
+            scores["structure"] = 1.0
+
+        # -------------------------------------------------
+        # Intent-aware weighting
+        # -------------------------------------------------
+
+        if intent == "GRAMMAR":
+
+            weights = {
+
+                "length": 0.10,
+                "education": 0.20,
+                "structure": 0.20,
+                "intent": 0.25,
+                "personalization": 0.05,
+                "safety": 0.20
+            }
+
+        elif intent == "TRANSLATION":
+
+            weights = {
+
+                "length": 0.05,
+                "education": 0.05,
+                "structure": 0.10,
+                "intent": 0.30,
+                "personalization": 0.10,
+                "safety": 0.40
+            }
+
+        else:
+
+            weights = {
+
+                "length": 0.15,
+                "education": 0.20,
+                "structure": 0.20,
+                "intent": 0.20,
+                "personalization": 0.10,
+                "safety": 0.15
+            }
+
+        # -------------------------------------------------
+        # Calculate quality score
+        # -------------------------------------------------
 
         quality_score = round(
 
-            sum(scores.values())
-
-            / len(scores),
+            sum(
+                scores[key] * weights[key]
+                for key in scores
+            ),
 
             2
         )
 
+        # -------------------------------------------------
+        # Generate feedback
+        # -------------------------------------------------
+
         feedback = cls.generate_feedback(
             scores
         )
+
+        # -------------------------------------------------
+        # Pass / Fail
+        # -------------------------------------------------
 
         passed = (
             quality_score
@@ -394,6 +466,10 @@ class ReflectionEngine:
         )
 
         confidence_score = quality_score
+
+        # -------------------------------------------------
+        # Return reflection result
+        # -------------------------------------------------
 
         return ReflectionResult(
 

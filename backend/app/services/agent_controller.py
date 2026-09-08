@@ -1,4 +1,4 @@
-"""
+﻿"""
 ===========================================================
 LANGUAGE LEARNING PAL AGENT CONTROLLER
 Version: 2.0
@@ -56,7 +56,8 @@ from app.services.reflection_engine import ReflectionEngine
 from app.services.reasoning_engine import ReasoningEngine
 from app.services.execution_engine import ExecutionEngine
 from app.services.prompt_manager import PromptManager
-from services.cultural_bridge_agent import CulturalBridgeAgent
+from app.services.superior_manager import SuperiorManager
+from app.services.cultural_bridge_agent import CulturalBridgeAgent
 
 from app.services.llm_service import generate_response
 
@@ -274,6 +275,26 @@ class AgentController:
 
             context.intent = intent_result.intent
             context.confidence = intent_result.confidence
+            
+            # ==========================================
+            # SUPERIOR MANAGER
+            # ==========================================
+            manager_decision = SuperiorManager.decide(
+                context.intent,
+                context.confidence
+            )
+
+            context.manager_decision = manager_decision
+
+            # ==========================================
+            # PHASE 2 FIRST-STAGE ORCHESTRATION
+            # ==========================================
+            first_stage_result = SuperiorManager.orchestrate_first_stage(
+                message=message,
+                memory=context.memory
+            )
+
+            context.manager_decision["first_stage"] = first_stage_result
 
             # ==========================================
             # CULTURAL BRIDGE ANALYSIS
@@ -287,69 +308,76 @@ class AgentController:
 
             cultural_bridge_intents = {
                 "CULTURAL_BRIDGE",
-    "GRAMMAR",
-    "DAILY_PHRASES",
-    "CONVERSATION",
-    "TRANSLATION",
-    "VOCABULARY",   
-           }
+                "GRAMMAR",
+                "DAILY_PHRASES",
+                "CONVERSATION",
+                "TRANSLATION",
+                "VOCABULARY",   
+            }
 
             if context.intent in cultural_bridge_intents:
+                cultural_data = (
+                    first_stage_result
+                    .get("agents", {})
+                    .get("cultural", {})
+                ) if isinstance(first_stage_result, dict) else {}
 
-                cultural_result = CulturalBridgeAgent.process(message)
+                cultural_result = cultural_data.get("result") if isinstance(cultural_data, dict) else None
 
-                issue = str(
-                    cultural_result.get("issue", "")
-                ).strip().lower()
+                if isinstance(cultural_result, dict):
+                    issue = str(
+                        cultural_result.get("issue", "")
+                    ).strip().lower()
 
-                no_issue = (
-                    not issue
-                    or "no genuine issue detected" in issue
-                    or "no genuine cultural" in issue
-                    or "no cultural" in issue
-                    or "no literal-language influence" in issue
-                )
-
-                if not no_issue:
-
-                    context.update_state(
-                        AgentState.COMPLETED
+                    no_issue = (
+                        not issue
+                        or "no genuine issue detected" in issue
+                        or "no genuine cultural" in issue
+                        or "no cultural" in issue
+                        or "no literal-language influence" in issue
                     )
 
-                    context.intent = "CULTURAL_BRIDGE"
-                    context.confidence = 1.0
+                    if not no_issue:
+                        context.update_state(
+                            AgentState.COMPLETED
+                        )
 
-                    context.response = (
-                        f"Original:\n"
-                        f"{cultural_result.get('original', message)}\n\n"
-                        f"Improved:\n"
-                        f"{cultural_result.get('improved', message)}\n\n"
-                        f"Explanation:\n"
-                        f"{cultural_result.get('reason', '')}"
-                    )
+                        context.intent = "CULTURAL_BRIDGE"
+                        context.confidence = 1.0
 
-                    MemoryManager.add_session_memory(
-                        user_id=user_id,
-                        message=message,
-                        response=context.response
-                    )
+                        context.response = (
+                            f"Original:\n"
+                            f"{cultural_result.get('original', message)}\n\n"
+                            f"Improved:\n"
+                            f"{cultural_result.get('improved', message)}\n\n"
+                            f"Explanation:\n"
+                            f"{cultural_result.get('reason', '')}"
+                        )
 
-                    return AgentResponse(
-                        success=True,
-                        response=context.response,
-                        intent=context.intent,
-                        confidence=context.confidence,
-                        state=context.state.value,
-                        metadata={
-                            "session_id": context.session_id,
-                            "agent": "CulturalBridgeAgent",
-                            "model": CulturalBridgeAgent.MODEL_NAME,
-                            "cultural_bridge": cultural_result,
-                            "execution_time": (
-                                datetime.utcnow() - start_time
-                            ).total_seconds()
-                        }
-                    )           
+                        MemoryManager.add_session_memory(
+                            user_id=user_id,
+                            message=message,
+                            response=context.response
+                        )
+
+                        return AgentResponse(
+                            success=True,
+                            response=context.response,
+                            intent=context.intent,
+                            confidence=context.confidence,
+                            state=context.state.value,
+                            metadata={
+                                "session_id": context.session_id,
+                                "agent": "CulturalBridgeAgent",
+                                "model": CulturalBridgeAgent.MODEL_NAME,
+                                "cultural_bridge": cultural_result,
+                                "manager_decision": context.manager_decision,
+                                "execution_time": (
+                                    datetime.utcnow() - start_time
+                                ).total_seconds()
+                            }
+                        )
+
             # ==========================================
             # STATE CHECK / INTERCEPTION
             # ==========================================
@@ -1508,6 +1536,9 @@ class AgentController:
 
                     "state":
                         context.state.value,
+
+                    "manager_decision":
+    context.manager_decision,
 
                     "execution_path":
                         context.execution_path,

@@ -24,7 +24,7 @@ Used By:
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from datetime import datetime
 
 from app.models.agent_state import AgentState
@@ -79,7 +79,7 @@ class AgentContext:
 
     selected_tool: str = ""
 
-    tool_name: str = None
+    tool_name: Optional[str] = None
 
     tool_output: Dict[str, Any] = field(default_factory=dict)
 

@@ -454,13 +454,23 @@ class IntentEngine:
         # Normal grammar-related sentences
         # These should remain GRAMMAR, not CULTURAL_BRIDGE.
         normal_grammar_patterns = [
+            "correct my grammar",
+            "check my grammar",
+            "fix my grammar",
+            "grammar correction",
+            "correct the grammar",
+            "check the grammar",
+            "fix the grammar",
+            "is this sentence correct",
+            "fix sentence",
+            "sentence correction",
+            "grammar mistake",
             "i finished the work yesterday",
             "i completed the work yesterday",
             "i did the work yesterday",
             "i finished my work yesterday",
             "i completed my work yesterday",
-        ]
-
+]
         if any(pattern in text for pattern in normal_grammar_patterns):
             return IntentResult(
                 intent="GRAMMAR",

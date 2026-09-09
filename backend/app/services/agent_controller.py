@@ -1,4 +1,4 @@
-"""
+﻿"""
 ===========================================================
 LANGUAGE LEARNING PAL AGENT CONTROLLER
 Version: 2.0
@@ -317,15 +317,12 @@ class AgentController:
 
             cultural_result = None
 
+        
             cultural_bridge_intents = {
                 "CULTURAL_BRIDGE",
-                "GRAMMAR",
                 "DAILY_PHRASES",
-                "CONVERSATION",
-                "TRANSLATION",
-                "VOCABULARY",   
+                "CONVERSATION"
             }
-
             if context.intent in cultural_bridge_intents:
                 cultural_data = (
                     first_stage_result

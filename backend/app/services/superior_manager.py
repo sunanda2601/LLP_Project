@@ -184,9 +184,19 @@ class SuperiorManager:
                     "error": "Vocabulary tool returned no result.",
                 }
 
+            # Convert ToolResult to a JSON-serializable dictionary.
+            if hasattr(result, "model_dump"):
+                result_data = result.model_dump()
+            elif hasattr(result, "dict"):
+                result_data = result.dict()
+            elif hasattr(result, "__dict__"):
+                result_data = vars(result)
+            else:
+                result_data = str(result)
+
             return {
                 "success": result.success,
-                "result": result,
+                "result": result_data,
                 "message": result.message,
             }
 

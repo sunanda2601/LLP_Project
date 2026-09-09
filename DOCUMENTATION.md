@@ -367,6 +367,51 @@ The remaining work for the LLP project is mainly:
 The original assignment referenced **Mistral Saba**. Since Mistral Saba was not available locally, the implementation/testing was carried out with the available local **Ministral/Mistral-family model through Ollama**. This should be clearly mentioned when explaining the implementation.
 
 
+## 15.A. Phase 2 – Superior Manager Orchestration
+
+### Overview
+
+The Phase 2 architecture introduces the **Superior Manager** as the orchestration layer for the language-learning agents.
+
+The Superior Manager is responsible for:
+
+- Analyzing the classified user intent.
+- Selecting the appropriate execution route.
+- Coordinating the first-stage language agents.
+- Running Grammar, Vocabulary, and Cultural Bridge processing in parallel.
+- Merging structured outputs without field collisions.
+- Preparing the merged result for the second-stage agents.
+- Supporting the handoff to Confidence Coach and Audit Agent.
+- Exposing a health/status check for the orchestration layer.
+
+### Phase 2 First-Stage Flow
+
+```text
+User Input
+    |
+    v
+Input Validation
+    |
+    v
+Context / Memory
+    |
+    v
+Superior Manager
+    |
+    +-------------------+
+    |        |          |
+    v        v          v
+ Grammar  Vocabulary  Cultural Bridge
+    |        |          |
+    +--------+----------+
+             |
+             v
+       Structured Merge
+             |
+             v
+      Second-Stage Input
+
+
 ### 16. Future Improvements
 
 Potential improvements include:

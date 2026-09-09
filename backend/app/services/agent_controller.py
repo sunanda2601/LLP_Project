@@ -1,4 +1,4 @@
-﻿"""
+"""
 ===========================================================
 LANGUAGE LEARNING PAL AGENT CONTROLLER
 Version: 2.0
@@ -287,12 +287,23 @@ class AgentController:
             context.manager_decision = manager_decision
 
             # ==========================================
+            # ==========================================
             # PHASE 2 FIRST-STAGE ORCHESTRATION
             # ==========================================
-            first_stage_result = SuperiorManager.orchestrate_first_stage(
-                message=message,
-                memory=context.memory
-            )
+            # Run the full first stage only when Cultural Bridge
+            # is required. Avoid running Grammar + Vocabulary +
+            # Cultural Bridge for every user request.
+            first_stage_result = None
+
+            if context.intent == "CULTURAL_BRIDGE":
+                cultural_result = SuperiorManager.run_cultural(message)
+                first_stage_result = {
+                    "stage": "FIRST_STAGE",
+                    "agents": {
+                        "cultural": cultural_result
+                    },
+                    "status": "completed" if cultural_result.get("success") else "completed_with_agent_errors"
+                }
 
             context.manager_decision["first_stage"] = first_stage_result
 
@@ -810,7 +821,10 @@ class AgentController:
                         tool_output=plan_dict
                     )
                     try:
+                        llm_start = datetime.utcnow()
                         context.response = generate_response(prompt)
+                        llm_time = (datetime.utcnow() - llm_start).total_seconds()
+                        print(f"[TIMING] LLM generation: {llm_time:.2f} seconds")
                     except Exception:
                         return AgentResponse(
                             success=False,

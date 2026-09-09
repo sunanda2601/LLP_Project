@@ -17,7 +17,7 @@ OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "ministral-3:8b"
 
 TEMPERATURE = 0.2
-MAX_TOKENS = 200
+MAX_TOKENS = 80
 TIMEOUT = 180
 # =========================================================
 # RESPONSE CLEANING

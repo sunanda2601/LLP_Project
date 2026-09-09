@@ -307,16 +307,27 @@ class SuperiorManager:
             memory=memory
         )
 
+        agent_successes = [
+            result.get("success", False)
+            for result in first_stage.values()
+        ]
+
+        stage_status = (
+            "completed"
+            if all(agent_successes)
+            else "completed_with_agent_errors"
+        )
+
         return {
             "stage": "FIRST_STAGE",
             "agents": first_stage,
-            "status": "completed"
+            "status": stage_status
         }
-
     # =====================================================
     # PHASE 2 - SECOND STAGE INTERFACE
     # =====================================================
 
+    
     @classmethod
     def build_second_stage_input(
         cls,
@@ -382,17 +393,6 @@ class SuperiorManager:
             result["status"] = "completed"
 
         return result
-        """
-        Prepare the merged first-stage result for
-        Confidence and Audit agents.
-
-        Confidence and Audit implementations can be
-        connected here without changing first-stage logic.
-        """
-
-        return {
-            "first_stage": first_stage_outputs
-        }
 
     # =====================================================
     # HEALTH CHECK

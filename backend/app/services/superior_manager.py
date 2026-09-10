@@ -20,6 +20,8 @@ from app.services.prompt_manager import PromptManager
 from app.services.llm_service import generate_response
 from app.services.tool_router import ToolRouter
 from app.services.cultural_bridge_agent import CulturalBridgeAgent
+from app.services.confidence_agent import ConfidenceAgent
+from app.services.audit_agent import AuditAgent
 
 
 class SuperiorManager:
@@ -314,6 +316,56 @@ class SuperiorManager:
         }
 
     # =====================================================
+    # PHASE 2 - SECOND STAGE AGENTS
+    # =====================================================
+
+    @classmethod
+    def run_confidence(
+        cls,
+        message: str
+    ) -> Dict[str, Any]:
+        """Run the Confidence Coach on a text string."""
+
+        try:
+            result = ConfidenceAgent.process(message)
+
+            return {
+                "success": True,
+                "result": result,
+            }
+
+        except Exception as e:
+
+            return {
+                "success": False,
+                "result": None,
+                "error": str(e),
+            }
+
+    @classmethod
+    def run_audit(
+        cls,
+        text: str
+    ) -> Dict[str, Any]:
+        """Run the Audit Agent on a text string."""
+
+        try:
+            result = AuditAgent.process(text)
+
+            return {
+                "success": True,
+                "result": result,
+            }
+
+        except Exception as e:
+
+            return {
+                "success": False,
+                "result": None,
+                "error": str(e),
+            }
+
+    # =====================================================
     # PHASE 2 - SECOND STAGE INTERFACE
     # =====================================================
 
@@ -343,12 +395,23 @@ class SuperiorManager:
         """
         Second-stage orchestration interface.
 
-        Confidence and Audit agents are injected when their
-        implementations become available.
+        When called without explicit callables, this method
+        now uses ConfidenceAgent and AuditAgent directly.
+        External callables are still accepted for testing.
         """
 
         merged_input = cls.build_second_stage_input(
             first_stage_outputs
+        )
+
+        # Extract a text string for the second-stage agents.
+        # Prefer grammar improved output, fall back to cultural.
+        text_for_second_stage = (
+            merged_input.get("grammar", {}).get("response", "")
+            or merged_input.get("cultural", {}).get(
+                "result", {}
+            ).get("improved", "")
+            or ""
         )
 
         result = {
@@ -358,41 +421,45 @@ class SuperiorManager:
             "status": "pending",
         }
 
-        # Confidence runs after first-stage merge.
+        # --- Confidence Coach ---
+        # Use injected callable if provided (for testing),
+        # otherwise call ConfidenceAgent directly.
         if confidence_agent is not None:
             result["confidence"] = confidence_agent(
-                merged_input
+                text_for_second_stage
+            )
+        elif text_for_second_stage:
+            result["confidence"] = cls.run_confidence(
+                text_for_second_stage
             )
 
-        # Audit runs after Confidence output is available.
+        # --- Audit Agent ---
+        # Runs after Confidence output is available.
+        confidence_text = ""
+        if result["confidence"]:
+            conf_result = result["confidence"]
+            # Handle both direct ConfidenceAgent output and
+            # wrapped {success, result} format.
+            if isinstance(conf_result, dict):
+                inner = conf_result.get(
+                    "result", conf_result
+                )
+                if isinstance(inner, dict):
+                    confidence_text = inner.get(
+                        "improved", text_for_second_stage
+                    )
+
+        audit_text = confidence_text or text_for_second_stage
+
         if audit_agent is not None:
-            audit_input = {
-                **merged_input,
-                "confidence": result["confidence"],
-            }
+            result["audit"] = audit_agent(audit_text)
+        elif audit_text:
+            result["audit"] = cls.run_audit(audit_text)
 
-            result["audit"] = audit_agent(
-                audit_input
-            )
-
-        if (
-            confidence_agent is not None
-            and audit_agent is not None
-        ):
+        if result["confidence"] and result["audit"]:
             result["status"] = "completed"
 
         return result
-        """
-        Prepare the merged first-stage result for
-        Confidence and Audit agents.
-
-        Confidence and Audit implementations can be
-        connected here without changing first-stage logic.
-        """
-
-        return {
-            "first_stage": first_stage_outputs
-        }
 
     # =====================================================
     # HEALTH CHECK
@@ -417,7 +484,9 @@ class SuperiorManager:
                 "Cultural Bridge",
             ],
             "second_stage_agents": [
-                "Confidence",
-                "Audit",
+                "Confidence Coach",
+                "Audit Agent",
             ],
+            "confidence_model": ConfidenceAgent.MODEL_NAME,
+            "audit_model": AuditAgent.MODEL_NAME,
         }

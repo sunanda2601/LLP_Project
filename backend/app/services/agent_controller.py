@@ -1,4 +1,4 @@
-﻿"""
+"""
 ===========================================================
 LANGUAGE LEARNING PAL AGENT CONTROLLER
 Version: 2.0
@@ -295,6 +295,15 @@ class AgentController:
             )
 
             context.manager_decision["first_stage"] = first_stage_result
+
+            # ==========================================
+            # PHASE 2 SECOND-STAGE ORCHESTRATION
+            # ==========================================
+            second_stage_result = SuperiorManager.run_second_stage(
+                first_stage_outputs=first_stage_result.get("agents", {}) if isinstance(first_stage_result, dict) else {}
+            )
+            
+            context.manager_decision["second_stage"] = second_stage_result
 
             # ==========================================
             # CULTURAL BRIDGE ANALYSIS

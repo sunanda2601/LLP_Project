@@ -290,22 +290,69 @@ class AgentController:
             # ==========================================
             # PHASE 2 FIRST-STAGE ORCHESTRATION
             # ==========================================
-            # Run the full first stage only when Cultural Bridge
-            # is required. Avoid running Grammar + Vocabulary +
-            # Cultural Bridge for every user request.
-            first_stage_result = None
+            # Initialize this for EVERY intent so downstream
+            # code never references an unassigned variable.
+
+            first_stage_result = {
+                "stage": "FIRST_STAGE",
+                "agents": {},
+                "status": "skipped"
+            }
 
             if context.intent == "CULTURAL_BRIDGE":
                 cultural_result = SuperiorManager.run_cultural(message)
+
                 first_stage_result = {
                     "stage": "FIRST_STAGE",
                     "agents": {
                         "cultural": cultural_result
                     },
-                    "status": "completed" if cultural_result.get("success") else "completed_with_agent_errors"
+                    "status": (
+                        "completed"
+                        if cultural_result.get("success")
+                        else "completed_with_agent_errors"
+                    )
+                }
+
+            elif context.intent == "CONFIDENCE":
+                first_stage_result = {
+                    "stage": "FIRST_STAGE",
+                    "agents": {
+                        "grammar": {
+                            "success": True,
+                            "response": message
+                        },
+                        "vocabulary": {},
+                        "cultural": {}
+                    },
+                    "status": "completed"
                 }
 
             context.manager_decision["first_stage"] = first_stage_result
+
+            # ==========================================
+            # PHASE 2 SECOND-STAGE ORCHESTRATION
+            # ==========================================
+            try:
+                second_stage_result = SuperiorManager.run_second_stage(
+                    first_stage_outputs=(
+                        first_stage_result.get("agents", {})
+                        if isinstance(first_stage_result, dict)
+                        else {}
+                    )
+                )
+
+                context.manager_decision["second_stage"] = second_stage_result
+
+            except Exception as e:
+                print(f"[PHASE 2] Second-stage agents failed: {type(e).__name__}: {e}")
+
+                context.manager_decision["second_stage"] = {
+                    "confidence": None,
+                    "audit": None,
+                    "status": "failed",
+                    "error": str(e),
+                }
 
             # ==========================================
             # CULTURAL BRIDGE ANALYSIS

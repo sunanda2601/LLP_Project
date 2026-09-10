@@ -136,6 +136,19 @@ class IntentEngine:
     "see you",
     "nice to meet you"
 ],
+
+        "CONFIDENCE": [
+            "i am sorry",
+            "maybe i can",
+            "i can try",
+            "if you want",
+            "i don't think i can",
+            "i am not sure",
+            "i'm not sure",
+            "perhaps i can",
+            "i might",
+            "i may be able to"
+        ],
     }
 
     GOAL_PATTERNS = [

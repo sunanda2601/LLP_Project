@@ -354,6 +354,153 @@ class AgentController:
                     "error": str(e),
                 }
 
+                        # ==========================================
+            # CONFIDENCE COACH FINAL RESPONSE
+            # ==========================================
+            if context.intent == "CONFIDENCE":
+                confidence_data = second_stage_result.get("confidence", {})
+                audit_data = second_stage_result.get("audit", {})
+
+                confidence_result = (
+                    confidence_data.get("result", {})
+                    if isinstance(confidence_data, dict)
+                    else {}
+                )
+
+                audit_result = (
+                    audit_data.get("result", {})
+                    if isinstance(audit_data, dict)
+                    else {}
+                )
+
+                original_text = confidence_result.get(
+                    "original",
+                    message
+                )
+
+                improved_text = confidence_result.get(
+                    "improved",
+                    original_text
+                )
+
+                reason = confidence_result.get(
+                    "reason",
+                    ""
+                )
+
+                # Prefer Audit's corrected output when available.
+                final_text = audit_result.get(
+                    "corrected_output",
+                    improved_text
+                ) or improved_text
+
+                context.update_state(AgentState.COMPLETED)
+                context.response = (
+                    f"Original:\n"
+                    f"{original_text}\n\n"
+                    f"Improved:\n"
+                    f"{final_text}\n\n"
+                    f"Confidence Feedback:\n"
+                    f"{reason}"
+                )
+
+                MemoryManager.add_session_memory(
+                    user_id=user_id,
+                    message=message,
+                    response=context.response
+                )
+
+                return AgentResponse(
+                    success=True,
+                    response=context.response,
+                    intent="CONFIDENCE",
+                    confidence=context.confidence,
+                    state=context.state.value,
+                    metadata={
+                        "session_id": context.session_id,
+                        "agent": "ConfidenceCoach",
+                        "confidence": confidence_result,
+                        "audit": audit_result,
+                        "manager_decision": context.manager_decision,
+                        "execution_time": (
+                            datetime.utcnow() - start_time
+                        ).total_seconds()
+                    }
+                )
+            # ==========================================
+            # CONFIDENCE COACH FINAL RESPONSE
+            # ==========================================
+            if context.intent == "CONFIDENCE":
+                confidence_data = second_stage_result.get("confidence", {})
+                audit_data = second_stage_result.get("audit", {})
+
+                confidence_result = (
+                    confidence_data.get("result", {})
+                    if isinstance(confidence_data, dict)
+                    else {}
+                )
+
+                audit_result = (
+                    audit_data.get("result", {})
+                    if isinstance(audit_data, dict)
+                    else {}
+                )
+
+                original_text = confidence_result.get(
+                    "original",
+                    message
+                )
+
+                improved_text = confidence_result.get(
+                    "improved",
+                    original_text
+                )
+
+                reason = confidence_result.get(
+                    "reason",
+                    ""
+                )
+
+                # Prefer Audit's corrected output when available.
+                final_text = audit_result.get(
+                    "corrected_output",
+                    improved_text
+                ) or improved_text
+
+                context.update_state(AgentState.COMPLETED)
+                context.response = (
+                    f"Original:\n"
+                    f"{original_text}\n\n"
+                    f"Improved:\n"
+                    f"{final_text}\n\n"
+                    f"Confidence Feedback:\n"
+                    f"{reason}"
+                )
+
+                MemoryManager.add_session_memory(
+                    user_id=user_id,
+                    message=message,
+                    response=context.response
+                )
+
+                return AgentResponse(
+                    success=True,
+                    response=context.response,
+                    intent="CONFIDENCE",
+                    confidence=context.confidence,
+                    state=context.state.value,
+                    metadata={
+                        "session_id": context.session_id,
+                        "agent": "ConfidenceCoach",
+                        "confidence": confidence_result,
+                        "audit": audit_result,
+                        "manager_decision": context.manager_decision,
+                        "execution_time": (
+                            datetime.utcnow() - start_time
+                        ).total_seconds()
+                    }
+                )
+
             # ==========================================
             # CULTURAL BRIDGE ANALYSIS
             # ==========================================

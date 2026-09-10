@@ -490,6 +490,136 @@ class IntentEngine:
                 confidence=1.0
             )
 
+        # Common grammatical error patterns in raw sentences.
+        # Route these to the Grammar Agent even without
+        # an explicit "correct my grammar" request.
+        grammar_error_patterns = [
+            "she go ",
+            "he go ",
+            "it go ",
+            "they goes ",
+            "we goes ",
+            "i goes ",
+            "you goes ",
+            "she have ",
+            "he have ",
+            "it have ",
+            "they has ",
+            "we has ",
+            "i has ",
+            "you has ",
+            "she do ",
+            "he do ",
+            "it do ",
+            "they does ",
+            "we does ",
+            "i does ",
+            "you does ",
+            "yesterday i go ",
+            "yesterday i goes ",
+            "tomorrow i go ",
+            "yesterday he go ",
+            "yesterday she go ",
+        ]
+
+        if any(pattern in text for pattern in normal_grammar_patterns):
+            return IntentResult(
+                intent="GRAMMAR",
+                confidence=1.0
+            )
+
+        # Common grammatical error patterns in raw sentences.
+        # Route these to the Grammar Agent even without
+        # an explicit "correct my grammar" request.
+        grammar_error_patterns = [
+            "she go ",
+            "he go ",
+            "it go ",
+            "they goes ",
+            "we goes ",
+            "i goes ",
+            "you goes ",
+            "she have ",
+            "he have ",
+            "it have ",
+            "they has ",
+            "we has ",
+            "i has ",
+            "you has ",
+            "she do ",
+            "he do ",
+            "it do ",
+            "they does ",
+            "we does ",
+            "i does ",
+            "you does ",
+            "yesterday i go ",
+            "yesterday i goes ",
+            "tomorrow i go ",
+            "yesterday he go ",
+            "yesterday she go ",
+        ]
+
+        if any(pattern in text for pattern in normal_grammar_patterns):
+            return IntentResult(
+                intent="GRAMMAR",
+                confidence=1.0
+            )
+
+        # Common grammatical error patterns in raw sentences.
+        # Route these to the Grammar Agent even without
+        # an explicit "correct my grammar" request.
+        grammar_error_patterns = [
+            "she go ",
+            "he go ",
+            "it go ",
+            "they goes ",
+            "we goes ",
+            "i goes ",
+            "you goes ",
+            "she have ",
+            "he have ",
+            "it have ",
+            "they has ",
+            "we has ",
+            "i has ",
+            "you has ",
+            "she do ",
+            "he do ",
+            "it do ",
+            "they does ",
+            "we does ",
+            "i does ",
+            "you does ",
+            "yesterday i go ",
+            "yesterday i goes ",
+            "tomorrow i go ",
+            "yesterday he go ",
+            "yesterday she go ",
+        ]
+
+        if any(pattern in text for pattern in grammar_error_patterns):
+            return IntentResult(
+                intent="GRAMMAR",
+                confidence=0.95
+            )
+                    # Normal conversational greetings/questions should be
+        # routed to CONVERSATION, not DAILY_PHRASES.
+        conversation_patterns = [
+            "hello, how are you",
+            "hi, how are you",
+            "hey, how are you",
+            "hello how are you",
+            "hi how are you",
+            "hey how are you",
+        ]
+
+        if any(pattern in text for pattern in conversation_patterns):
+            return IntentResult(
+                intent="CONVERSATION",
+                confidence=0.95
+            )
+
         scores = Counter()
 
         for intent, patterns in cls.INTENT_PATTERNS.items():
